@@ -1,3 +1,4 @@
+require 'rubygems'
 require 'nokogiri'
 require 'csv'
 require 'uri'
@@ -10,15 +11,26 @@ print "Имя файла: "
 file_name = gets.chomp
 
 unless url_category =~ URI::regexp && 
-	   Curl.get(url_category).status.to_i == 200
+     Curl.get(url_category).status.to_i == 200
   puts "Ошибка URL!"
   exit
 end
 
 html_category = Curl.get(url_category).body_str
 doc_category = Nokogiri::HTML(html_category)
-data = []
-links = doc_category.xpath("//a[@class='product_img_link']").map {|e| e[:href]}
+page_size = doc_category.xpath("//ul[@class='pagination pull-left']/li[last()-1]/a/span").text.strip.to_i
+data  = []
+links = []
+
+1.upto(page_size).each do |page_number|
+  url = "#{url_category}?p=#{page_number}"
+  html = Curl.get(url_category).body_str
+  doc = Nokogiri::HTML(html)
+  doc.xpath("//a[@class='product_img_link']").each do |link| 
+    links.push(link[:href])
+  end
+end
+
 links.each do |link|
   html = Curl.get(link).body_str
   doc = Nokogiri::HTML(html)
