@@ -17,7 +17,7 @@ end
 
 html_category = Curl.get(url_category).body_str
 doc_category = Nokogiri::HTML(html_category)
-page_size = doc_category.xpath("//ul[@class='pagination pull-left']/li[last()-1]/a/span").text.strip.to_i
+page_size = doc_category.xpath("//div[@id='pagination_bottom']/ul/li[last()-1]/a/span").text.strip.to_i
 data  = []
 links = []
 
